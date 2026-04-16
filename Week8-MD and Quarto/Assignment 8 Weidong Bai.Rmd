@@ -1,0 +1,97 @@
+---
+title: "Game of Thrones Season 8 Viewership Analysis"
+author: "Weidong Bai"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+  echo = FALSE,
+  warning = FALSE,
+  message = FALSE
+)
+
+library(ggplot2)
+library(dplyr)
+library(knitr)
+library(kableExtra)
+```
+
+# Overview
+
+*Game of Thrones* is an American fantasy drama television series created by David Benioff and D. B. Weiss for HBO. It is based on the fantasy novel series *A Song of Ice and Fire* by George R. R. Martin. The eighth and final season premiered in 2019 and concluded the story of the battle for the Iron Throne.
+
+# Show Image
+
+```{r}
+knitr::include_graphics("got_logo.jpg")
+```
+
+# Data Import
+
+```{r}
+got <- read.csv("season_8.csv")
+```
+
+# Summary Statistics
+
+```{r}
+summary_stats <- data.frame(
+  Mean_Viewers = mean(got$viewers),
+  Median_Viewers = median(got$viewers),
+  Max_Viewers = max(got$viewers),
+  Min_Viewers = min(got$viewers),
+  SD_Viewers = sd(got$viewers)
+)
+
+kable(summary_stats, digits = 2) %>%
+  kable_styling(full_width = FALSE, bootstrap_options = c("striped", "hover"))
+```
+
+The average episode attracted **`r round(mean(got$viewers),2)` million viewers**.  
+The most watched episode had **`r round(max(got$viewers),2)` million viewers**, while the least watched had **`r round(min(got$viewers),2)` million viewers**.
+
+# Viewership Over Time
+
+```{r}
+ggplot(got, aes(x = no_season, y = viewers)) +
+  geom_line(color = "#1f77b4", linewidth = 1.5) +
+  geom_point(color = "#d62728", size = 4) +
+  labs(
+    title = "Viewership Over Time",
+    x = "Episode Number",
+    y = "Viewers (Millions)"
+  ) +
+  theme_minimal(base_size = 14)
+```
+
+# Episode-to-Episode Changes
+
+```{r}
+got$viewership_change <- c(NA, diff(got$viewers))
+
+ggplot(got[-1, ], aes(x = no_season, y = viewership_change)) +
+  geom_col(fill = "#2ca02c") +
+  labs(
+    title = "Episode-to-Episode Changes in Viewership",
+    x = "Episode Number",
+    y = "Viewer Change (Millions)"
+  ) +
+  theme_minimal(base_size = 14)
+```
+
+# Analysis of Observed Changes
+
+```{r}
+max_increase <- max(got$viewership_change, na.rm = TRUE)
+max_decrease <- min(got$viewership_change, na.rm = TRUE)
+
+increase_episode <- got$no_season[which.max(got$viewership_change)]
+decrease_episode <- got$no_season[which.min(got$viewership_change)]
+```
+
+The largest increase in audience occurred before **Episode `r increase_episode`**, with viewership rising by **`r round(max_increase,2)` million**.
+
+The largest decrease occurred before **Episode `r decrease_episode`**, with viewership falling by **`r abs(round(max_decrease,2))` million**.
+
+Overall, the season demonstrated fluctuating audience engagement, with viewership peaking toward the final episodes.
