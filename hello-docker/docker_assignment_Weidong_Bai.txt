@@ -1,0 +1,143 @@
+Task 1.1 — Change the Python version
+
+(base) weidb@Louiss-MacBook-Air hello-docker % cat > Dockerfile << 'EOF'
+FROM python:3.9-slim
+WORKDIR /app
+RUN pip install numpy==1.26.4
+COPY hello.py .
+CMD ["python", "hello.py"]
+EOF
+
+(base) weidb@Louiss-MacBook-Air hello-docker % docker build -t hello-docker .
+
+[+] Building 12.3s (9/9) FINISHED                           docker:desktop-linux
+ => [internal] load build definition from Dockerfile                        0.0s
+ => => transferring dockerfile: 144B                                        0.0s
+ => [internal] load metadata for docker.io/library/python:3.9-slim          0.8s
+ => [internal] load .dockerignore                                           0.0s
+ => => transferring context: 2B                                             0.0s
+ => [1/4] FROM docker.io/library/python:3.9-slim@sha256:2d97f6910b16bd338d  0.0s
+ => => resolve docker.io/library/python:3.9-slim@sha256:2d97f6910b16bd338d  0.0s
+ => [internal] load build context                                           0.0s
+ => => transferring context: 29B                                            0.0s
+ => CACHED [2/4] WORKDIR /app                                               0.0s
+ => [3/4] RUN pip install numpy==1.26.4                                     6.8s
+ => [4/4] COPY hello.py .                                                   0.0s 
+ => exporting to image                                                      4.6s 
+ => => exporting layers                                                     2.8s 
+ => => exporting manifest sha256:7845cc5ace7bf923fe6e2ff7df4edef225a50277a  0.0s 
+ => => exporting config sha256:b4e727df8615a7e01254feb5ac250670c6eabbbb81e  0.0s 
+ => => exporting attestation manifest sha256:09606ecea8f1fb26b611537bd1048  0.1s 
+ => => exporting manifest list sha256:815db6996844ef575894fff06b8a08bb4cd0  0.0s
+ => => naming to docker.io/library/hello-docker:latest                      0.0s
+ => => unpacking to docker.io/library/hello-docker:latest                   1.5s
+
+View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/mzzolxpzt9kyo0j6ap1qq1c8s
+(base) weidb@Louiss-MacBook-Air hello-docker % docker run --rm hello-docker
+
+Python 3.9, NumPy 1.26.4
+
+
+
+
+
+
+Task 1.2 — Break and fix the Dockerfile
+
+(base) weidb@Louiss-MacBook-Air hello-docker % cat > hello.py << 'EOF'
+import sys, pandas
+print(f"Python {sys.version_info.major}.{sys.version_info.minor}, pandas {pandas.__version__}")
+EOF
+
+(base) weidb@Louiss-MacBook-Air hello-docker % docker build -t hello-docker .
+
+[+] Building 1.3s (10/10) FINISHED                          docker:desktop-linux
+ => [internal] load build definition from Dockerfile                        0.0s
+ => => transferring dockerfile: 144B                                        0.0s
+ => [internal] load metadata for docker.io/library/python:3.9-slim          1.0s
+ => [auth] library/python:pull token for registry-1.docker.io               0.0s
+ => [internal] load .dockerignore                                           0.0s
+ => => transferring context: 2B                                             0.0s
+ => [1/4] FROM docker.io/library/python:3.9-slim@sha256:2d97f6910b16bd338d  0.0s
+ => => resolve docker.io/library/python:3.9-slim@sha256:2d97f6910b16bd338d  0.0s
+ => [internal] load build context                                           0.0s
+ => => transferring context: 150B                                           0.0s
+ => CACHED [2/4] WORKDIR /app                                               0.0s
+ => CACHED [3/4] RUN pip install numpy==1.26.4                              0.0s
+ => [4/4] COPY hello.py .                                                   0.0s
+ => exporting to image                                                      0.2s
+ => => exporting layers                                                     0.0s
+ => => exporting manifest sha256:46d472a2039af819c9e1cc2a19820f888330d71ae  0.0s
+ => => exporting config sha256:a2327fd43de7bbed5fbee3a08fe07a2fe992966c2a0  0.0s
+ => => exporting attestation manifest sha256:fbca7b2ac23ec328af3f6fb2cdde8  0.0s
+ => => exporting manifest list sha256:8fd70e1b28aebc5d8a823b697343648e9510  0.0s
+ => => naming to docker.io/library/hello-docker:latest                      0.0s
+ => => unpacking to docker.io/library/hello-docker:latest                   0.0s
+
+View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/es3sof3tqcazdvs8l8f3bt0k8
+(base) weidb@Louiss-MacBook-Air hello-docker % docker run --rm hello-docker
+
+Traceback (most recent call last):
+  File "/app/hello.py", line 1, in <module>
+    import sys, pandas
+ModuleNotFoundError: No module named 'pandas'
+
+What's next:
+    Debug this container error with Gordon → docker ai "help me fix this container error"
+(base) weidb@Louiss-MacBook-Air hello-docker % 
+(base) weidb@Louiss-MacBook-Air hello-docker % cat > Dockerfile << 'EOF'
+FROM python:3.9-slim
+WORKDIR /app
+RUN pip install pandas==2.2.2
+COPY hello.py .
+CMD ["python", "hello.py"]
+EOF
+(base) weidb@Louiss-MacBook-Air hello-docker % docker build -t hello-docker .
+
+[+] Building 17.6s (9/9) FINISHED                           docker:desktop-linux
+ => [internal] load build definition from Dockerfile                        0.0s
+ => => transferring dockerfile: 144B                                        0.0s
+ => [internal] load metadata for docker.io/library/python:3.9-slim          1.7s
+ => [internal] load .dockerignore                                           0.0s
+ => => transferring context: 2B                                             0.0s
+ => [1/4] FROM docker.io/library/python:3.9-slim@sha256:2d97f6910b16bd338d  0.0s
+ => => resolve docker.io/library/python:3.9-slim@sha256:2d97f6910b16bd338d  0.0s
+ => [internal] load build context                                           0.0s
+ => => transferring context: 29B                                            0.0s
+ => CACHED [2/4] WORKDIR /app                                               0.0s
+ => [3/4] RUN pip install pandas==2.2.2                                    10.7s
+ => [4/4] COPY hello.py .                                                   0.0s 
+ => exporting to image                                                      5.0s 
+ => => exporting layers                                                     4.1s 
+ => => exporting manifest sha256:fd37a37825890d98fe3db9987f9850bc7ca853e99  0.0s 
+ => => exporting config sha256:4f84f53ea603a281d91785cb75d747e6d2f0427b9fe  0.0s 
+ => => exporting attestation manifest sha256:9d83dbff78f217c068812ec394d42  0.0s 
+ => => exporting manifest list sha256:8f808187355b7fc083a255c278304bf8a716  0.0s
+ => => naming to docker.io/library/hello-docker:latest                      0.0s
+ => => unpacking to docker.io/library/hello-docker:latest                   0.8s
+
+View build details: docker-desktop://dashboard/build/desktop-linux/desktop-linux/7h8gtnh1uxuwn4cw1v6un1yht
+(base) weidb@Louiss-MacBook-Air hello-docker % docker run --rm hello-docker
+
+Python 3.9, pandas 2.2.2
+
+
+Your final Dockerfile pasted as text.
+
+FROM python:3.9-slim
+WORKDIR /app
+RUN pip install pandas==2.2.2
+COPY hello.py .
+CMD ["python", "hello.py"]
+
+
+
+
+
+Question 2.1 — Why pin?
+
+If you don't pin a version, pip install pandas grabs whatever's latest at build time. Six months later someone rebuilds your image and gets a newer pandas that behaves differently — same Dockerfile, different results, no error message to explain why.
+
+Question 2.2 — Recipe or cake?
+
+The Dockerfile is better because it's readable. Anyone can open it and see exactly what was installed and why. A pre-built image is a black box — you just have to trust it.
